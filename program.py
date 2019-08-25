@@ -1,3 +1,4 @@
+import argparse
 from string import Template
 from pathlib import Path
 from glob import glob
@@ -8,8 +9,20 @@ from glob import glob
 
 
 def main():
-    path = input("Input the path where the files are: ")
-    file_pattern = input("Input the file-pattern (eg. pic####.ext): ")
+    # Let's define all the arguments for our program
+    parser = argparse.ArgumentParser()
+    parser.add_argument("path", type=str, nargs=1, help="path to the directory that contains the file to be renamed")
+    parser.add_argument("pattern", nargs=1, type=str, help="filename pattern eg. pic####.ext")
+    quiet_group = parser.add_mutually_exclusive_group()
+
+    # Let's set some optional arguments to make the output verbose or quiet
+    quiet_group.add_argument("-v", "--verbose", action="store_true")
+    quiet_group.add_argument("-q", "--quiet", action="store_true")
+    args = parser.parse_args()
+
+    # We store the arguments in their variables
+    file_pattern = args.pattern[0]
+    path = args.path[0]
 
     # find the index of the first # and the index of the last #
     # and the length of the # sequence
@@ -40,6 +53,8 @@ def main():
         # create a Path object with the file's path and rename it according to
         # our dictionary
         p = Path(file)
+        if args.verbose is True:
+            print(f"Renaming {file} to {template.substitute(template_dict)}")
         p.rename(template.substitute(template_dict))
         counter += 1
 
